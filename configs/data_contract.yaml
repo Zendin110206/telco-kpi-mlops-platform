@@ -1,0 +1,59 @@
+dataset:
+  name: network_operator_kpis_time_series
+  source_name: "Network operator KPIs time series dataset"
+  source_url: "https://zenodo.org/records/8147768"
+  domain: telecommunications_network_analytics
+  description: "Anonymized and scaled network operator KPI time-series data."
+  expected_frequency_minutes: 5
+  value_min: 0
+  value_max: 1000
+
+raw_storage:
+  directory: "data/raw"
+  commit_raw_files: false
+  expected_archive_name: "network_operator_kpis_time_series_dataset.zip"
+
+processed_storage:
+  directory: "data/processed"
+  commit_processed_files: false
+
+canonical_schema:
+  timestamp_index:
+    type: integer
+    nullable: false
+    description: "Relative time index or timestamp-like ordering field."
+  location_id:
+    type: string
+    nullable: false
+    description: "Anonymized network/operator location identifier."
+  kpi_name:
+    type: string
+    nullable: false
+    description: "Canonical KPI name after normalization."
+  kpi_value:
+    type: float
+    nullable: false
+    description: "Scaled KPI value."
+
+allowed_kpi_names:
+  - aggregated_internet_traffic
+  - downstream_traffic
+  - active_client_sessions
+  - vpn_traffic
+
+quality_rules:
+  allow_missing_required_fields: false
+  allow_duplicate_records: false
+  allow_negative_values: false
+  max_allowed_value: 1000
+  require_monotonic_time_per_series: true
+  require_non_empty_series: true
+
+series_key:
+  - location_id
+  - kpi_name
+
+target_use_cases:
+  - time_series_forecasting
+  - residual_anomaly_detection
+  - api_demo

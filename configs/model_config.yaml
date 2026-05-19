@@ -1,0 +1,37 @@
+model:
+  name: telco_kpi_sarima_residual_anomaly_detector
+  version: "0.1.0"
+  task_type: forecasting_and_residual_anomaly_detection
+
+forecasting:
+  baseline_model: sarima
+  train_ratio: 0.8
+  forecast_horizon_steps: 12
+  seasonal_period_steps: 288
+  sarima_order:
+    p: 1
+    d: 1
+    q: 1
+  seasonal_order:
+    p: 1
+    d: 1
+    q: 1
+
+anomaly_scoring:
+  method: residual_threshold
+  threshold_std_multiplier: 3.0
+  severity_levels:
+    - normal
+    - low
+    - medium
+    - high
+    - critical
+
+evaluation:
+  forecast_metrics:
+    - mae
+    - rmse
+    - mape
+  anomaly_metrics:
+    - anomaly_count
+    - anomaly_rate
