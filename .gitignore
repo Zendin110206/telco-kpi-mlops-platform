@@ -1,0 +1,32 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Data and artifacts
+data/raw/*
+data/interim/*
+data/processed/*
+artifacts/models/*
+artifacts/reports/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!artifacts/models/.gitkeep
+!artifacts/reports/.gitkeep
+
+# Private local research and learning notes
+local_context/
+
+# OS/editor
+.DS_Store
+Thumbs.db
