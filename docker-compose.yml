@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: telco-kpi-postgres
+    environment:
+      POSTGRES_USER: telco
+      POSTGRES_PASSWORD: telco
+      POSTGRES_DB: telco_kpi_mlops
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telco -d telco_kpi_mlops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
