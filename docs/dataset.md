@@ -28,12 +28,12 @@ It supports a backend-leaning ML workflow:
 
 The pipeline will normalize the raw data into the following canonical schema:
 
-| Field | Type | Description |
-| --- | --- | --- |
+| Field             | Type    | Description                                          |
+| ----------------- | ------- | ---------------------------------------------------- |
 | `timestamp_index` | integer | Relative time index or timestamp-like ordering field |
-| `location_id` | string | Anonymized network/operator location identifier |
-| `kpi_name` | string | Canonical KPI name |
-| `kpi_value` | float | Scaled KPI value |
+| `location_id`     | string  | Anonymized network/operator location identifier      |
+| `kpi_name`        | string  | Canonical KPI name                                   |
+| `kpi_value`       | float   | Scaled KPI value                                     |
 
 ## Planned KPI Names
 
@@ -115,12 +115,12 @@ The dataset metadata uses raw KPI labels:
 
 The project maps these raw labels to canonical names:
 
-| Raw label | Canonical name |
-| --- | --- |
-| `internet` | `aggregated_internet_traffic` |
-| `sessions` | `active_client_sessions` |
-| `vpn` | `vpn_traffic` |
-| `downstream` | `downstream_traffic` |
+| Raw label    | Canonical name                |
+| ------------ | ----------------------------- |
+| `internet`   | `aggregated_internet_traffic` |
+| `sessions`   | `active_client_sessions`      |
+| `vpn`        | `vpn_traffic`                 |
+| `downstream` | `downstream_traffic`          |
 
 ## Inspection Findings
 
@@ -135,6 +135,30 @@ Initial inspection shows:
 - One incident is open-ended: `r8 2594 -1`.
 
 These findings are kept explicit because validation and loading code must handle metadata/file mismatches carefully.
+
+## Canonical Dataset Loader
+
+The project converts raw time-series text files into a canonical tabular format before validation, database loading, feature engineering, and modeling.
+
+Canonical columns:
+
+| Column            | Meaning                                                         |
+| ----------------- | --------------------------------------------------------------- |
+| `timestamp_index` | Relative timestamp in seconds from the beginning of each series |
+| `location_id`     | Anonymized raw series identifier such as `r1` or `s1`           |
+| `kpi_name`        | Canonical KPI name mapped from the raw KPI label                |
+| `kpi_value`       | Scaled KPI measurement value                                    |
+
+The loader reads KPI label mappings from `configs/data_contract.yaml`.
+
+Initial canonical loading produces:
+
+- 665,756 rows.
+- 62 KPI series loaded from available raw files.
+- 4 canonical KPI names.
+- Missing metadata files skipped during loading: `s16`, `s17`.
+
+The missing metadata files are kept visible because validation logic must handle metadata/file mismatches explicitly.
 
 ## Limitation
 
