@@ -9,7 +9,7 @@ def main() -> None:
 
     print("Canonical dataset preview:")
     print(f"- rows: {len(records):,}")
-    print(f"- columns: {len(records.columns)}")
+    print(f"- columns: {list(records.columns)}")
     print(f"- KPI names: {sorted(records['kpi_name'].unique())}")
     print(f"- KPI series: {records[['location_id', 'kpi_name']].drop_duplicates().shape[0]}")
     print(f"- timestamp min: {records['timestamp_index'].min()}")
