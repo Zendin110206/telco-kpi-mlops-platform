@@ -36,10 +36,11 @@ canonical_schema:
     description: "Scaled KPI value."
 
 allowed_kpi_names:
-  - aggregated_internet_traffic
-  - downstream_traffic
-  - active_client_sessions
-  - vpn_traffic
+  raw_kpi_label_mapping:
+    internet: aggregated_internet_traffic
+    sessions: active_client_sessions
+    vpn: vpn_traffic
+    downstream: downstream_traffic
 
 quality_rules:
   allow_missing_required_fields: false

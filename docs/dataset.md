@@ -65,6 +65,77 @@ Initial quality rules:
 - KPI values should not exceed the expected maximum defined in `configs/data_contract.yaml`;
 - each series must be sorted by time before modeling.
 
+## Raw Dataset Structure
+
+After extraction, the dataset is stored under:
+
+```text
+data/raw/network_operator_kpis/network_operator_KPIs_time_series_dataset/
+```
+
+The raw dataset contains:
+
+- `README.md`
+- `data_real/`
+- `data_real_info.txt`
+- `data_real_incidents.txt`
+- `data_series/`
+- `data_series_info.txt`
+
+## Raw Time-Series Format
+
+Each time-series file is a whitespace-separated text file.
+
+Each row has:
+
+```text
+timestamp_seconds value
+```
+
+Example:
+
+```text
+0 504.35893782712503
+300 482.2609633078445
+600 460.7019175783829
+```
+
+The timestamp is shifted so that each series starts at 0.
+
+The 300-second step corresponds to the expected 5-minute KPI interval.
+
+## Raw KPI Labels
+
+The dataset metadata uses raw KPI labels:
+
+- `internet`
+- `sessions`
+- `vpn`
+- `downstream`
+
+The project maps these raw labels to canonical names:
+
+| Raw label | Canonical name |
+| --- | --- |
+| `internet` | `aggregated_internet_traffic` |
+| `sessions` | `active_client_sessions` |
+| `vpn` | `vpn_traffic` |
+| `downstream` | `downstream_traffic` |
+
+## Inspection Findings
+
+Initial inspection shows:
+
+- `data_real/` contains 14 time-series files.
+- `data_series/` contains 48 time-series files.
+- `data_real_info.txt` contains 14 metadata rows.
+- `data_series_info.txt` contains 50 metadata rows.
+- `s16` and `s17` appear in `data_series_info.txt`, but the extracted files are not present.
+- `data_real_incidents.txt` contains 15 incident rows.
+- One incident is open-ended: `r8 2594 -1`.
+
+These findings are kept explicit because validation and loading code must handle metadata/file mismatches carefully.
+
 ## Limitation
 
 The dataset is public, anonymized, and scaled. It is not private Indonesian operator data.
