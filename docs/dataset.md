@@ -160,6 +160,29 @@ Initial canonical loading produces:
 
 The missing metadata files are kept visible because validation logic must handle metadata/file mismatches explicitly.
 
+## Data Validation
+
+The project validates the canonical dataset before database loading, feature engineering, and modeling.
+
+Validation checks include:
+
+- required canonical columns;
+- missing required values;
+- duplicate records based on `location_id`, `kpi_name`, and `timestamp_index`;
+- allowed KPI names from `configs/data_contract.yaml`;
+- KPI value range from 0 to 1000;
+- monotonic timestamp order per KPI series;
+- expected 5-minute timestamp frequency;
+- non-empty KPI series;
+- documented missing raw metadata files.
+
+The known missing metadata files are:
+
+- `s16`
+- `s17`
+
+These are stored in `configs/data_contract.yaml` as documented raw metadata expectations. Any unexpected missing file should fail validation.
+
 ## Limitation
 
 The dataset is public, anonymized, and scaled. It is not private Indonesian operator data.

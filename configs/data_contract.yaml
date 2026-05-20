@@ -47,6 +47,11 @@ raw_kpi_label_mapping:
   vpn: vpn_traffic
   downstream: downstream_traffic
 
+raw_metadata_expectations:
+  known_missing_series_files:
+    - s16
+    - s17
+
 quality_rules:
   allow_missing_required_fields: false
   allow_duplicate_records: false
