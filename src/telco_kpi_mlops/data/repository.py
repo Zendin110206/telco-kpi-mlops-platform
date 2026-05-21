@@ -26,6 +26,7 @@ class LoadSummary:
     rows_received: int
     inserted_rows: int
     skipped_rows: int
+    total_rows_before: int
     total_rows_after: int
 
 
@@ -66,30 +67,52 @@ def load_kpi_records(
     records: pd.DataFrame,
     batch_size: int = 10_000,
 ) -> LoadSummary:
-    """Load canonical KPI records into the PostgreSQL database with conflict handling."""
+    """Load KPI records into the database, skipping duplicates based on unique constraints."""
     metadata = MetaData()
     kpi_records = Table("kpi_records", metadata, autoload_with=engine)
-    inserted_rows = 0
 
     with engine.begin() as connection:
+        total_rows_before = int(
+            connection.execute(text("SELECT COUNT(*) FROM kpi_records")).scalar_one()
+        )
+
         for batch in iter_record_batches(records, batch_size=batch_size):
             statement = insert(kpi_records).values(batch)
             statement = statement.on_conflict_do_nothing(
                 index_elements=["location_id", "kpi_name", "timestamp_index"]
             )
-            result = connection.execute(statement)
-            inserted_rows += result.rowcount or 0
+            connection.execute(statement)
 
         total_rows_after = int(
             connection.execute(text("SELECT COUNT(*) FROM kpi_records")).scalar_one()
         )
 
+    inserted_rows = total_rows_after - total_rows_before
+
     return LoadSummary(
         rows_received=len(records),
         inserted_rows=inserted_rows,
         skipped_rows=len(records) - inserted_rows,
+        total_rows_before=total_rows_before,
         total_rows_after=total_rows_after,
     )
+
+
+def get_first_kpi_series_key(engine: Engine) -> tuple[str, str]:
+    with engine.connect() as connection:
+        """ Get the location ID and KPI name of the first KPI series in the database for testing."""
+        row = connection.execute(
+            text(
+                """
+                SELECT location_id, kpi_name
+                FROM kpi_records
+                GROUP BY location_id, kpi_name
+                ORDER BY location_id, kpi_name
+                LIMIT 1
+                """
+            )
+        ).one()
+        return str(row[0]), str(row[1])
 
 
 def get_distinct_locations(engine: Engine) -> list[str]:

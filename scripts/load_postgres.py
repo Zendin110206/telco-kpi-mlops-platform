@@ -6,6 +6,7 @@ from telco_kpi_mlops.data.repository import (
     create_database_engine,
     get_distinct_kpi_names,
     get_distinct_locations,
+    get_first_kpi_series_key,
     load_kpi_records,
     read_kpi_series,
 )
@@ -26,10 +27,11 @@ def main() -> None:
     summary = load_kpi_records(engine, load_result.records)
     locations = get_distinct_locations(engine)
     kpi_names = get_distinct_kpi_names(engine)
+    sample_location_id, sample_kpi_name = get_first_kpi_series_key(engine)
     sample = read_kpi_series(
         engine=engine,
-        location_id=locations[0],
-        kpi_name=kpi_names[0],
+        location_id=sample_location_id,
+        kpi_name=sample_kpi_name,
         limit=5,
     )
 
