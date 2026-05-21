@@ -203,6 +203,20 @@ Initial load result:
 
 The load script is idempotent. Re-running it should skip existing records instead of creating duplicates.
 
+## Time-Series Feature Preparation
+
+The project prepares KPI time series before forecasting.
+
+Feature preparation utilities include:
+
+- chronological sorting by `timestamp_index`;
+- regular 5-minute frequency alignment;
+- missing point filling using interpolation and forward/backward fill;
+- chronological train/test split;
+- forecast horizon timestamp generation.
+
+Time-series train/test splitting is chronological, not random, to avoid future data leakage into training data.
+
 ## Limitation
 
 The dataset is public, anonymized, and scaled. It is not private Indonesian operator data.
