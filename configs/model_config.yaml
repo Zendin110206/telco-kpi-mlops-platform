@@ -7,15 +7,16 @@ forecasting:
   baseline_model: sarima
   train_ratio: 0.8
   forecast_horizon_steps: 12
-  seasonal_period_steps: 288
+  seasonal_period_steps: 12
+  training_sample_rows: 288
   sarima_order:
     p: 1
     d: 1
     q: 1
   seasonal_order:
-    p: 1
+    p: 0
     d: 1
-    q: 1
+    q: 0
 
 anomaly_scoring:
   method: residual_threshold
