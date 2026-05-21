@@ -73,7 +73,6 @@ def train_sarima_model(
         seasonal_order=seasonal_order,
         enforce_stationarity=False,
         enforce_invertibility=False,
-        simple_differencing=True,
         concentrate_scale=True,
     )
     return model.fit(disp=False, low_memory=True)
