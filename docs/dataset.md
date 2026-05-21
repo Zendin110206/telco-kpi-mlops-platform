@@ -183,6 +183,26 @@ The known missing metadata files are:
 
 These are stored in `configs/data_contract.yaml` as documented raw metadata expectations. Any unexpected missing file should fail validation.
 
+## PostgreSQL Loading
+
+Validated canonical KPI records are loaded into PostgreSQL table `kpi_records`.
+
+The load process:
+
+1. reads the canonical dataset;
+2. validates records using the data contract;
+3. inserts records in batches;
+4. skips duplicates using the database uniqueness constraint.
+
+Initial load result:
+
+- 665,756 records received.
+- 665,756 records inserted on the first load.
+- 62 distinct locations.
+- 4 canonical KPI names.
+
+The load script is idempotent. Re-running it should skip existing records instead of creating duplicates.
+
 ## Limitation
 
 The dataset is public, anonymized, and scaled. It is not private Indonesian operator data.
