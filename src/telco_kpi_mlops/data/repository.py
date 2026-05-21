@@ -17,11 +17,33 @@ KPI_RECORD_COLUMNS = [
     "timestamp_index",
     "kpi_value",
 ]
+ANOMALY_EVENT_COLUMNS = [
+    "location_id",
+    "kpi_name",
+    "timestamp_index",
+    "actual_value",
+    "forecast_value",
+    "residual",
+    "threshold_value",
+    "severity",
+    "model_version",
+]
 
 
 @dataclass(frozen=True)
 class LoadSummary:
     """Summary returned after loading canonical KPI records into PostgreSQL."""
+
+    rows_received: int
+    inserted_rows: int
+    skipped_rows: int
+    total_rows_before: int
+    total_rows_after: int
+
+
+@dataclass(frozen=True)
+class AnomalyLoadSummary:
+    """Summary returned after loading anomaly events into PostgreSQL."""
 
     rows_received: int
     inserted_rows: int
@@ -158,4 +180,61 @@ def read_kpi_series(
             "kpi_name": kpi_name,
             "limit": limit,
         },
+    )
+
+
+def iter_anomaly_event_batches(
+    events: pd.DataFrame,
+    batch_size: int,
+) -> Iterator[list[dict[str, Any]]]:
+    """Yield batches of anomaly events as lists of dictionaries."""
+    if batch_size <= 0:
+        raise ValueError("batch_size must be greater than zero.")
+
+    selected_events = events[ANOMALY_EVENT_COLUMNS]
+
+    for start in range(0, len(selected_events), batch_size):
+        batch = selected_events.iloc[start : start + batch_size]
+        yield batch.to_dict(orient="records")
+
+
+def load_anomaly_events(
+    engine: Engine,
+    events: pd.DataFrame,
+    batch_size: int = 1_000,
+) -> AnomalyLoadSummary:
+    """Load anomaly events into PostgreSQL, skipping duplicates."""
+    metadata = MetaData()
+    anomaly_events = Table("anomaly_events", metadata, autoload_with=engine)
+
+    with engine.begin() as connection:
+        total_rows_before = int(
+            connection.execute(text("SELECT COUNT(*) FROM anomaly_events")).scalar_one()
+        )
+
+        if not events.empty:
+            for batch in iter_anomaly_event_batches(events, batch_size=batch_size):
+                statement = insert(anomaly_events).values(batch)
+                statement = statement.on_conflict_do_nothing(
+                    index_elements=[
+                        "location_id",
+                        "kpi_name",
+                        "timestamp_index",
+                        "model_version",
+                    ]
+                )
+                connection.execute(statement)
+
+        total_rows_after = int(
+            connection.execute(text("SELECT COUNT(*) FROM anomaly_events")).scalar_one()
+        )
+
+    inserted_rows = total_rows_after - total_rows_before
+
+    return AnomalyLoadSummary(
+        rows_received=len(events),
+        inserted_rows=inserted_rows,
+        skipped_rows=len(events) - inserted_rows,
+        total_rows_before=total_rows_before,
+        total_rows_after=total_rows_after,
     )
