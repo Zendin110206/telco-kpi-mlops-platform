@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from telco_kpi_mlops.api.routes.health import router as health_router
+
 app = FastAPI(
     title="Telco KPI MLOps Platform",
     version="0.1.0",
     description="Forecasting and anomaly detection API for telecom KPI time series.",
 )
+app.include_router(health_router)
 
 
 @app.get("/")
